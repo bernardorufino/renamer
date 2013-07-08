@@ -172,6 +172,23 @@ public class MainWindow implements Notifier {
         renameButton.addActionListener(new RenameButtonHandler());
         operationsPanel.add(renameButton);
 
+        JPanel renameDirsPanel = new JPanel();
+        renameDirsPanel.setMaximumSize(new Dimension(32767, renameDirsPanel.getHeight()));
+        renameDirsPanel.setBorder(new EmptyBorder(0, 10, 0, 0));
+        renameDirsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        frame.getContentPane().add(renameDirsPanel);
+
+        final JCheckBox directoriesCheckbox = new JCheckBox(Messages.CHECKBOX_DIRECTORIES, false);
+        directoriesCheckbox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                renamer.renameDirectories(directoriesCheckbox.isSelected());
+                renamer.reload();
+                fetchButton.doClick();
+            }
+        });
+        renameDirsPanel.add(directoriesCheckbox);
+
         JPanel statusPanel = new JPanel();
         statusPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         frame.getContentPane().add(statusPanel);
