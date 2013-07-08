@@ -2,7 +2,6 @@ package gui;
 
 import model.Renamer;
 import model.Renamer.PathNotDirectoryException;
-import static model.Renamer.Replacement;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -11,12 +10,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
+
+import static model.Renamer.Replacement;
 
 public class MainWindow implements Notifier {
 
     private static final String DEFAULT_SEARCH = "^(.*)\\.(.*)$";
     private static final String DEFAULT_REPLACEMENT = "[$1].$2";
-    private static final String DEFAULT_DIR = "D:\\Music";
+    private static final String DEFAULT_DIR = "C:\\";
     private static final Font TEXT_FIELD_FONT = new Font("Courier New", Font.PLAIN, 12);
     /* package */ static final Color FILE_MATCHED_COLOR       = new Color(35, 140, 0);
     /* package */ static final Color FILE_NOT_MATCHED_COLOR   = new Color(147, 50, 53);
@@ -33,7 +35,10 @@ public class MainWindow implements Notifier {
     private DefaultListModel<Replacement> replacementListModel;
     private Renamer renamer;
     private Notifier notifier;
+    private JButton fetchButton;
     private JButton renameButton;
+    
+    private JFileChooser fileChooser;
 
     public MainWindow() {
         renamer = new Renamer("C:\\");
@@ -74,6 +79,19 @@ public class MainWindow implements Notifier {
     private void fetchReplacementsList() {
         for (Replacement replacement : renamer.getReplacements().values()) {
             replacementListModel.addElement(replacement);
+        }
+    }
+
+    private class FileChooserButtonHandler implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            fileChooser.setCurrentDirectory(new File(pathField.getText()));
+            int result = fileChooser.showOpenDialog(frame);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                pathField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                fetchButton.doClick();
+            }
         }
     }
 
@@ -119,7 +137,7 @@ public class MainWindow implements Notifier {
         frame = new JFrame();
         frame.setTitle(Messages.WINDOW_TITLE);
         frame.setMinimumSize(new Dimension(640, 480));
-        frame.setBounds(100, 100, 520, 381);
+        frame.setBounds(100, 100, 680, 381);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
 
@@ -140,7 +158,13 @@ public class MainWindow implements Notifier {
         operationsPanel.add(pathField);
         pathField.setColumns(30);
 
-        JButton fetchButton = new JButton(Messages.BUTTON_FETCH);
+        JButton fileChooserButton = new JButton("..");
+        fileChooser = new JFileChooser(DEFAULT_DIR);
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooserButton.addActionListener(new FileChooserButtonHandler());
+        operationsPanel.add(fileChooserButton);
+
+        fetchButton = new JButton(Messages.BUTTON_FETCH);
         fetchButton.addActionListener(new FetchButtonHandler());
         operationsPanel.add(fetchButton);
 
