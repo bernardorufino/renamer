@@ -1,17 +1,17 @@
 package model;
 
+import utils.Filter;
+import utils.Utils;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import utils.Filter;
-import utils.Utils;
 
 public class Renamer {
     private String path;
+    private boolean directories;
     private File root;
     private List<File> files;
     private HashMap<File, Replacement> replacements;
@@ -26,8 +26,10 @@ public class Renamer {
         public boolean triedToRename;
     }
     
-    public static final Filter<File> fileFilter = new Filter<File>() {
-        public boolean filter(File member) { return member.isFile(); }
+    public final Filter<File> fileFilter = new Filter<File>() {
+        public boolean filter(File member) {
+            return directories ? member.isDirectory() : member.isFile();
+        }
     };
     
     public Renamer(String path) {
@@ -37,6 +39,10 @@ public class Renamer {
     public void setPath(String path) {
         this.path = path;
         setDir();
+    }
+
+    public void renameDirectories(boolean directories) {
+        this.directories = directories;
     }
 
     public void reload() {
